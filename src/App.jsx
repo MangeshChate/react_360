@@ -6,9 +6,9 @@ import mountain from './models/mountain.glb';
 function App() {
   const loader = new GLTFLoader();
   const mountainRef = useRef(null);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [randomInfo, setRandomInfo] = useState('');
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, z: 0 });
+  const [popupInfo, setPopupInfo] = useState('');
 
   useEffect(() => {
     loader.load(mountain, (d) => {
@@ -24,20 +24,24 @@ function App() {
     // Add more images as needed
   ];
 
-  const handleMouseEnterImage = (imageId) => {
-    setSelectedImage(imageId);
+  const handleImageClick = (position, info, id) => {
+    // Calculate the position of the popup based on the position of the clicked image
+    const imagePosition = images.find(image => image.id === id);
+    const popupX = imagePosition ? imagePosition.id * 5 - 7 : 0;
+    const popupY = 2;
+    const popupZ = -5;
+    
+    setShowPopup(true);
+    setPopupPosition({ x: popupX, y: popupY, z: popupZ });
+    setPopupInfo(info);
   };
 
-  const handleMouseLeaveImage = () => {
-    setSelectedImage(null);
+  const handleClosePopup = () => {
+    setShowPopup(false);
   };
 
   const handleButtonClick = () => {
-    // Generate random information about the selected image
-    const randomIndex = Math.floor(Math.random() * 3); // Adjust as needed based on the number of random information items
-    const randomInformation = ['Information 1', 'Information 2', 'Information 3']; // Sample information
-    setRandomInfo(randomInformation[randomIndex]);
-    setShowPopup(true);
+    alert('Button clicked!');
   };
 
   return (
@@ -54,54 +58,48 @@ function App() {
         ref={mountainRef}
       />
       {images.map((image) => (
-        <a-entity
+        <a-image
           key={image.id}
+          src={image.src}
+          width="3"
+          height="2"
           position={`${image.id * 5 - 7} 2 -5`}
-          events={{
-            mouseenter: () => handleMouseEnterImage(image.id),
-            mouseleave: handleMouseLeaveImage
-          }}
-        >
-          <a-image
-            src={image.src}
-            width="3"
-            height="2"
-            style={{ cursor: 'pointer' }}
-            events={{
-              click: () => handleButtonClick(image.id)
-            }}
-          />
-          {/* UI elements within the image */}
-          {selectedImage === image.id && (
-            <a-entity
-              geometry="primitive: plane; width: 2; height: 1"
-              material={`color: ${showPopup ? 'yellow' : 'white'}; opacity: 0.8`}
-              position="0 0 -0.01"
-              events={{
-                click: handleButtonClick
-              }}
-            >
-              <a-text
-                value="Show Information"
-                align="center"
-                color="#000000"
-                position="0 0 0.05"
-              />
-            </a-entity>
-          )}
-        </a-entity>
+          style={{ cursor: 'pointer' }}
+          onClick={() => handleImageClick({ x: 0, y: 2, z: -5 }, image.info, image.id)}
+        />
       ))}
       {showPopup && (
         <a-entity
           id="infoPanel"
-          position="0 0 0.5"
-          visible="true"
-          scale="0.001 0.001 0.001"
-          geometry="primitive: plane; width: 1.5; height: 1.8"
-          material="color: #333333; shader: flat; transparent: false"
-          class="raycastable"
+          position={`${popupPosition.x} ${popupPosition.y} ${popupPosition.z}`}
+          geometry="primitive: plane; width: 4; height: 2; radius: 0.1"
+          material="color: #ffffff; shader: flat; opacity: 0.7; transparent: true"
         >
-          {/* Display popup content here */}
+          {/* Close button */}
+          <a-entity
+            id="closeButton"
+            position="1.7 0.9 0.01"
+            geometry="primitive: plane; width: 0.5; height: 0.5"
+            material="color: #ff0000; shader: flat"
+            onClick={handleClosePopup}
+            events={{ click: handleClosePopup }}
+          >
+            <a-text value="X" align="center" color="#ffffff"></a-text>
+          </a-entity>
+          
+          {/* Popup content */}
+          <a-text value={popupInfo} align="center" color="black" wrap-count="20" position="0 0.5 0"></a-text>
+          
+          {/* Button */}
+          <a-entity
+            id="popupButton"
+            position="0 -0.5 0.1"
+            geometry="primitive: plane; width: 2; height: 0.5"
+            material="color: #0088ff; shader: flat"
+            onClick={handleButtonClick}
+          >
+            <a-text value="Click Me!" align="center" color="#ffffff"></a-text>
+          </a-entity>
         </a-entity>
       )}
     </a-scene>
