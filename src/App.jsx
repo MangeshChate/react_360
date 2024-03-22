@@ -30,7 +30,7 @@ function App() {
     const popupX = imagePosition ? imagePosition.id * 5 - 7 : 0;
     const popupY = 2;
     const popupZ = -5;
-    
+
     setShowPopup(true);
     setPopupPosition({ x: popupX, y: popupY, z: popupZ });
     setPopupInfo(info);
@@ -45,64 +45,71 @@ function App() {
   };
 
   return (
-    <a-scene cursor="rayOrigin: mouse">
-      <a-assets>
-        <img id="sky" src={sky} />
-      </a-assets>
-      <a-sky color="#FFFFFF" material="src: #sky" rotation="0 0 0" />
-      <a-entity
-        color="#FFFFFF"
-        id="mountain"
-        position="0 0 0"
-        scale="15 15 15"
-        ref={mountainRef}
-      />
-      {images.map((image) => (
-        <a-image
-          key={image.id}
-          src={image.src}
-          width="3"
-          height="2"
-          position={`${image.id * 5 - 7} 2 -5`}
-          style={{ cursor: 'pointer' }}
-          onClick={() => handleImageClick({ x: 0, y: 2, z: -5 }, image.info, image.id)}
-        />
-      ))}
-      {showPopup && (
+    <div style={{paddingTop:"100px"}}>
+
+      <a-scene cursor="rayOrigin: mouse"xr-mode-ui="cardboardModeEnabled: false" >
+       
+        <a-assets>
+          <img id="sky" src={sky} />
+        </a-assets>
+        <a-sky color="#FFFFFF" material="src: #sky" rotation="0 0 0" />
         <a-entity
-          id="infoPanel"
-          position={`${popupPosition.x} ${popupPosition.y} ${popupPosition.z}`}
-          geometry="primitive: plane; width: 4; height: 2; radius: 0.1"
-          material="color: #ffffff; shader: flat; opacity: 0.7; transparent: true"
-        >
-          {/* Close button */}
+          color="#FFFFFF"
+          id="mountain"
+          position="0 0 0"
+          scale="15 15 15"
+          ref={mountainRef}
+        />
+        {images.map((image) => (
+          <a-image
+            key={image.id}
+            src={image.src}
+            width="3"
+            height="2"
+            position={`${image.id * 5 - 7} 2 -5`}
+            style={{ cursor: 'pointer' }}
+            onClick={() => handleImageClick({ x: 0, y: 2, z: -5 }, image.info, image.id)}
+          />
+        ))}
+        {showPopup && (
           <a-entity
-            id="closeButton"
-            position="1.7 0.9 0.01"
-            geometry="primitive: plane; width: 0.5; height: 0.5"
-            material="color: #ff0000; shader: flat"
-            onClick={handleClosePopup}
-            events={{ click: handleClosePopup }}
+            id="infoPanel"
+            position={`${popupPosition.x} ${popupPosition.y} ${popupPosition.z}`}
+            geometry="primitive: plane; width: 4; height: 2; radius: 0.1"
+            material="color: #ffffff; shader: flat; opacity: 0.7; transparent: true"
           >
-            <a-text value="X" align="center" color="#ffffff"></a-text>
+            {/* Close button */}
+            <a-entity
+              id="closeButton"
+              position="1.7 0.9 0.01"
+              geometry="primitive: plane; width: 0.5; height: 0.5"
+              material="color: #ff0000; shader: flat"
+              onClick={handleClosePopup}
+              events={{ click: handleClosePopup }}
+            >
+              <a-text value="X" align="center" color="#ffffff"></a-text>
+            </a-entity>
+
+            {/* Popup content */}
+            <a-text value={popupInfo} align="center" color="black" wrap-count="20" position="0 0.5 0.3"></a-text>
+
+            {/* Button */}
+            <a-entity
+              id="popupButton"
+              position="0 -0.5 0.1"
+              geometry="primitive: plane; width: 2; height: 0.5"
+              material="color: #0088ff; shader: flat"
+              onClick={handleButtonClick}
+            >
+              <a-text value="Click Me!" align="center" color="#ffffff"></a-text>
+            </a-entity>
           </a-entity>
-          
-          {/* Popup content */}
-          <a-text value={popupInfo} align="center" color="black" wrap-count="20" position="0 0.5 0"></a-text>
-          
-          {/* Button */}
-          <a-entity
-            id="popupButton"
-            position="0 -0.5 0.1"
-            geometry="primitive: plane; width: 2; height: 0.5"
-            material="color: #0088ff; shader: flat"
-            onClick={handleButtonClick}
-          >
-            <a-text value="Click Me!" align="center" color="#ffffff"></a-text>
-          </a-entity>
-        </a-entity>
-      )}
-    </a-scene>
+        )}
+
+
+
+      </a-scene>
+    </div>
   );
 }
 
