@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import 'aframe';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import mountain from './models/mountain.glb';
-
+import sky from "./assets/sky.jpg"
 function App() {
   const loader = new GLTFLoader();
   const mountainRef = useRef(null);
@@ -19,8 +19,8 @@ function App() {
 
   const images = [
     { id: 1, src: 'https://miro.medium.com/v2/resize:fit:1200/0*j7sVnq-dE0XWdS12.jpeg', info: 'Information 1' },
-    { id: 2, src: 'https://www.pinkvilla.com/pics/480x270/128469247_one-piece-episode-1071-release-date_202308.jpg', info: 'Information 2' },
-    { id: 3, src: 'https://wallpapers-clan.com/wp-content/uploads/2023/11/one-piece-angry-monkey-d-luffy-desktop-wallpaper-preview.jpg', info: 'Information 3' },
+    { id: 2, src: 'https://static.wikia.nocookie.net/onepiece/images/8/87/One_Piece_Anime_Logo.png', info: 'Information 2' },
+    { id: 3, src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', info: 'Information 3' },
     // Add more images as needed
   ];
 
@@ -47,7 +47,7 @@ function App() {
   return (
     <a-scene cursor="rayOrigin: mouse">
       <a-assets>
-        <img id="sky" src="https://images.pond5.com/360-vr-space-video-flying-088396598_prevstill.jpeg" />
+        <img id="sky" src={sky} />
       </a-assets>
       <a-sky color="#FFFFFF" material="src: #sky" rotation="0 0 0" />
       <a-entity
