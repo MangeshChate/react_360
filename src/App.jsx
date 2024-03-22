@@ -47,7 +47,7 @@ function App() {
   return (
     <div style={{paddingTop:"100px"}}>
 
-      <a-scene cursor="rayOrigin: mouse"xr-mode-ui="cardboardModeEnabled: false" >
+      <a-scene cursor="rayOrigin: mouse"xr-mode-ui="cardboardModeEnabled: true" >
        
         <a-assets>
           <img id="sky" src={sky} />
