@@ -2,15 +2,18 @@ import React, { useRef, useEffect, useState } from 'react';
 import 'aframe';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import mountain from './models/mountain.glb';
-import sky from "./assets/sky.jpg"
+import sky from "./assets/sky.jpg";
+import useSpeechRecognition from './useSpeechRecognition'; 
 
 function App() {
   const loader = new GLTFLoader();
   const mountainRef = useRef(null);
+  const cameraRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, z: 0 });
   const [popupInfo, setPopupInfo] = useState('');
-  const [lookingAtObject, setLookingAtObject] = useState(null); // Flag for gaze-based interaction
+  const [listening, setListening] = useState(false);
+  const [movingForward, setMovingForward] = useState(false);
 
   useEffect(() => {
     loader.load(mountain, (d) => {
@@ -45,59 +48,83 @@ function App() {
     alert('Button clicked!');
   };
 
-  const handleTouchMove = (evt) => {
-    const touch = evt.touches[0];
-    const lastTouchX = useRef(null);
-    const lastTouchY = useRef(null);
-
-    if (!lastTouchX.current || !lastTouchY.current) {
-      lastTouchX.current = touch.clientX;
-      lastTouchY.current = touch.clientY;
-      return;
-    }
-
-    const deltaX = touch.clientX - lastTouchX.current;
-    const deltaY = touch.clientY - lastTouchY.current;
-    lastTouchX.current = touch.clientX;
-    lastTouchY.current = touch.clientY;
-
-    const camera = document.querySelector('a-entity[camera]').object3D;
-
-    // Adjust the movement factor to control the sensitivity of movement
-    const movementFactor = 0.01;
-
-    // Update camera position based on swipe delta for horizontal and vertical movement
-    camera.position.x += deltaX * movementFactor;
-    camera.position.z += deltaY * movementFactor; // For forward and backward movement
-  };
-
-  const handleCursorIntersection = (evt) => {
-    const intersectedEntity = evt.detail.intersected;
-    setLookingAtObject(intersectedEntity); // Update flag if looking at something interactive
-  };
-
-  const handleTouchEnd = (evt) => {
-    if (lookingAtObject) {
-      handleImageClick(lookingAtObject.object3D.position, lookingAtObject.getAttribute('data-info'), lookingAtObject.id); // Trigger interaction based on intersected object
-      setLookingAtObject(null); // Reset flag
-    }
-  };
+  // Speech recognition setup
+  const { transcript, startListening, stopListening, resetTranscript } = useSpeechRecognition(); // Use the custom hook
 
   useEffect(() => {
-    document.addEventListener('touchmove', handleTouchMove);
-    document.querySelector('a-scene').addEventListener('raycaster-intersection', handleCursorIntersection);
-    document.addEventListener('touchend', handleTouchEnd);
+    if (listening) {
+      startListening();
+    } else {
+      stopListening();
+    }
+  }, [listening, startListening, stopListening]);
 
-    return () => {
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.querySelector('a-scene').removeEventListener('raycaster-intersection', handleCursorIntersection);
-      document.removeEventListener('touchend', handleTouchEnd);
+  useEffect(() => {
+    if (transcript === 'move forward') {
+      moveCameraForward() // Simulate pressing 'w' key for 1 second
+      console.log("move forward")
+      resetTranscript();
+    } else if (transcript === 'move backward') {
+      moveCameraBackward(); // Simulate pressing 's' key for 1 second
+      console.log("move backword")
+
+      resetTranscript();
+    }
+  }, [transcript, resetTranscript]);
+ 
+
+  const moveCameraForward = () => {
+    const cameraEntity = cameraRef.current.object3D;
+    let stepCount = 0; // Initialize step count
+  
+    const moveStep = () => {
+      if (cameraEntity && stepCount < 25) { // Repeat 5 times
+        const currentPosition = cameraEntity.position.clone();
+        const targetPosition = new THREE.Vector3(currentPosition.x, currentPosition.y, currentPosition.z - 3); // Adjust the step size as needed
+        const newPosition = currentPosition.lerp(targetPosition, 0.1); // Adjust the interpolation factor for smoother movement
+  
+        cameraEntity.position.set(newPosition.x, newPosition.y, newPosition.z);
+        stepCount++;
+      } else {
+        clearInterval(moveInterval); // Stop the interval once step count reaches 5
+      }
     };
-  }, []);
+  
+    const moveInterval = setInterval(moveStep, 50); // Adjust the interval duration as needed for smoother movement
+  };
+  
+  const moveCameraBackward = () => {
+    const cameraEntity = cameraRef.current.object3D;
+    let stepCount = 0; // Initialize step count
+  
+    const moveStep = () => {
+      if (cameraEntity && stepCount < 25) { // Repeat 5 times
+        const currentPosition = cameraEntity.position.clone();
+        const targetPosition = new THREE.Vector3(currentPosition.x, currentPosition.y, currentPosition.z + 3); // Adjust the step size as needed
+        const newPosition = currentPosition.lerp(targetPosition, 0.1); // Adjust the interpolation factor for smoother movement
+  
+        cameraEntity.position.set(newPosition.x, newPosition.y, newPosition.z);
+        stepCount++;
+      } else {
+        clearInterval(moveInterval); // Stop the interval once step count reaches 5
+      }
+    };
+  
+    const moveInterval = setInterval(moveStep, 50); // Adjust the interval duration as needed for smoother movement
+  };
+  
 
+  const toggleListening = () => {
+    setListening(!listening);
+  };
+
+  
   return (
-    <div style={{paddingTop:"100px"}}>
-      <a-scene cursor="rayOrigin: mouse" >
+    <div style={{ paddingTop: "100px" }}>
+      <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '9999' }}>
+  <button onClick={toggleListening}>{listening ? "Stop Listening" : "Start Listening"}</button>
+</div>
+      <a-scene cursor="rayOrigin: mouse">
         <a-assets>
           <img id="sky" src={sky} />
         </a-assets>
@@ -109,6 +136,7 @@ function App() {
           scale="15 15 15"
           ref={mountainRef}
         />
+        <a-camera ref={cameraRef}></a-camera>
         {images.map((image) => (
           <a-image
             key={image.id}
@@ -152,6 +180,8 @@ function App() {
             >
               <a-text value="Click Me!" align="center" color="#ffffff"></a-text>
             </a-entity>
+
+           
           </a-entity>
         )}
       </a-scene>
