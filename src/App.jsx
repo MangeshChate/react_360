@@ -3,6 +3,7 @@ import 'aframe';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import mountain from './models/mountain.glb';
 import sky from "./assets/sky.jpg"
+
 function App() {
   const loader = new GLTFLoader();
   const mountainRef = useRef(null);
@@ -26,7 +27,6 @@ function App() {
   ];
 
   const handleImageClick = (position, info, id) => {
-    // Calculate the position of the popup based on the position of the clicked image
     const imagePosition = images.find(image => image.id === id);
     const popupX = imagePosition ? imagePosition.id * 5 - 7 : 0;
     const popupY = 2;
@@ -46,21 +46,29 @@ function App() {
   };
 
   const handleTouchMove = (evt) => {
-    // Implement swipe gesture logic for movement
     const touch = evt.touches[0];
-    const lastTouchX = useRef(null); // Keep track of previous touch position
+    const lastTouchX = useRef(null);
+    const lastTouchY = useRef(null);
 
-    if (!lastTouchX.current) {
+    if (!lastTouchX.current || !lastTouchY.current) {
       lastTouchX.current = touch.clientX;
+      lastTouchY.current = touch.clientY;
       return;
     }
 
     const deltaX = touch.clientX - lastTouchX.current;
+    const deltaY = touch.clientY - lastTouchY.current;
     lastTouchX.current = touch.clientX;
+    lastTouchY.current = touch.clientY;
 
-    // Update camera position based on swipe delta (adjust factor)
     const camera = document.querySelector('a-entity[camera]').object3D;
-    camera.position.x += deltaX * 0.01;
+
+    // Adjust the movement factor to control the sensitivity of movement
+    const movementFactor = 0.01;
+
+    // Update camera position based on swipe delta for horizontal and vertical movement
+    camera.position.x += deltaX * movementFactor;
+    camera.position.z += deltaY * movementFactor; // For forward and backward movement
   };
 
   const handleCursorIntersection = (evt) => {
@@ -89,9 +97,7 @@ function App() {
 
   return (
     <div style={{paddingTop:"100px"}}>
-
       <a-scene cursor="rayOrigin: mouse" >
-       
         <a-assets>
           <img id="sky" src={sky} />
         </a-assets>
@@ -148,9 +154,6 @@ function App() {
             </a-entity>
           </a-entity>
         )}
-
-
-
       </a-scene>
     </div>
   );
