@@ -72,25 +72,31 @@ function App() {
     }
   }, [transcript, resetTranscript]);
  
-
   const moveCameraForward = () => {
     const cameraEntity = cameraRef.current.object3D;
     let stepCount = 0; // Initialize step count
   
     const moveStep = () => {
-      if (cameraEntity && stepCount < 25) { // Repeat 5 times
+      if (cameraEntity && stepCount < 20) { // Repeat 20 times
+        // Get the current position and rotation of the camera
         const currentPosition = cameraEntity.position.clone();
-        const targetPosition = new THREE.Vector3(currentPosition.x, currentPosition.y, currentPosition.z - 3); // Adjust the step size as needed
-        const newPosition = currentPosition.lerp(targetPosition, 0.1); // Adjust the interpolation factor for smoother movement
+        const currentRotation = cameraEntity.rotation.clone();
   
-        cameraEntity.position.set(newPosition.x, newPosition.y, newPosition.z);
+        // Calculate the movement vector based on the camera's rotation
+        const deltaX = -0.5 * Math.sin(currentRotation.y);
+        const deltaZ = -0.5 * Math.cos(currentRotation.y);
+  
+        // Update the camera position relative to the ground plane
+        cameraEntity.position.x += deltaX;
+        cameraEntity.position.z += deltaZ;
+  
         stepCount++;
       } else {
-        clearInterval(moveInterval); // Stop the interval once step count reaches 5
+        clearInterval(moveInterval); // Stop the interval once step count reaches 20
       }
     };
   
-    const moveInterval = setInterval(moveStep, 50); // Adjust the interval duration as needed for smoother movement
+    const moveInterval = setInterval(moveStep, 30); // Adjust the interval duration as needed for smoother movement
   };
   
   const moveCameraBackward = () => {
@@ -98,20 +104,28 @@ function App() {
     let stepCount = 0; // Initialize step count
   
     const moveStep = () => {
-      if (cameraEntity && stepCount < 25) { // Repeat 5 times
+      if (cameraEntity && stepCount < 20) { // Repeat 20 times
+        // Get the current position and rotation of the camera
         const currentPosition = cameraEntity.position.clone();
-        const targetPosition = new THREE.Vector3(currentPosition.x, currentPosition.y, currentPosition.z + 3); // Adjust the step size as needed
-        const newPosition = currentPosition.lerp(targetPosition, 0.1); // Adjust the interpolation factor for smoother movement
+        const currentRotation = cameraEntity.rotation.clone();
   
-        cameraEntity.position.set(newPosition.x, newPosition.y, newPosition.z);
+        // Calculate the movement vector based on the camera's rotation
+        const deltaX = 0.5 * Math.sin(currentRotation.y);
+        const deltaZ = 0.5 * Math.cos(currentRotation.y);
+  
+        // Update the camera position relative to the ground plane
+        cameraEntity.position.x += deltaX;
+        cameraEntity.position.z += deltaZ;
+  
         stepCount++;
       } else {
-        clearInterval(moveInterval); // Stop the interval once step count reaches 5
+        clearInterval(moveInterval); // Stop the interval once step count reaches 20
       }
     };
   
-    const moveInterval = setInterval(moveStep, 50); // Adjust the interval duration as needed for smoother movement
+    const moveInterval = setInterval(moveStep, 30); // Adjust the interval duration as needed for smoother movement
   };
+  
   
 
   const toggleListening = () => {
@@ -121,8 +135,8 @@ function App() {
   
   return (
     <div style={{ paddingTop: "100px" }}>
-      <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: '9999' }}>
-  <button onClick={toggleListening}>{listening ? "Stop Listening" : "Start Listening"}</button>
+      <div style={{ position: 'absolute', top: '45px', left: '10px', zIndex: '9999' }}>
+  <button onClick={toggleListening} style={{padding:"0.5rem",fontSize:"1rem" ,borderRadius:"10px" , border:"none",color:"white",fontWeight:"bold" ,background: 'rgba(25,25,25,0.5)',}}>{listening ? "Stop Listening" : "Start Listening"}</button>
 </div>
       <a-scene cursor="rayOrigin: mouse">
         <a-assets>
