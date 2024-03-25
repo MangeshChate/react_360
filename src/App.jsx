@@ -9,6 +9,7 @@ function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, z: 0 });
   const [popupInfo, setPopupInfo] = useState('');
+  const [lookingAtObject, setLookingAtObject] = useState(null); // Flag for gaze-based interaction
 
   useEffect(() => {
     loader.load(mountain, (d) => {
@@ -44,10 +45,52 @@ function App() {
     alert('Button clicked!');
   };
 
+  const handleTouchMove = (evt) => {
+    // Implement swipe gesture logic for movement
+    const touch = evt.touches[0];
+    const lastTouchX = useRef(null); // Keep track of previous touch position
+
+    if (!lastTouchX.current) {
+      lastTouchX.current = touch.clientX;
+      return;
+    }
+
+    const deltaX = touch.clientX - lastTouchX.current;
+    lastTouchX.current = touch.clientX;
+
+    // Update camera position based on swipe delta (adjust factor)
+    const camera = document.querySelector('a-entity[camera]').object3D;
+    camera.position.x += deltaX * 0.01;
+  };
+
+  const handleCursorIntersection = (evt) => {
+    const intersectedEntity = evt.detail.intersected;
+    setLookingAtObject(intersectedEntity); // Update flag if looking at something interactive
+  };
+
+  const handleTouchEnd = (evt) => {
+    if (lookingAtObject) {
+      handleImageClick(lookingAtObject.object3D.position, lookingAtObject.getAttribute('data-info'), lookingAtObject.id); // Trigger interaction based on intersected object
+      setLookingAtObject(null); // Reset flag
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('touchmove', handleTouchMove);
+    document.querySelector('a-scene').addEventListener('raycaster-intersection', handleCursorIntersection);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.querySelector('a-scene').removeEventListener('raycaster-intersection', handleCursorIntersection);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
   return (
     <div style={{paddingTop:"100px"}}>
 
-      <a-scene cursor="rayOrigin: mouse"xr-mode-ui="cardboardModeEnabled: true" >
+      <a-scene cursor="rayOrigin: mouse" >
        
         <a-assets>
           <img id="sky" src={sky} />
