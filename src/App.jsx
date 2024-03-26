@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import 'aframe';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import mountain from './models/mountain.glb';
+import carpet from './models/carpet.glb';
+
 import sky from "./assets/sky.jpg";
 import useSpeechRecognition from './useSpeechRecognition'; 
 
@@ -14,12 +16,22 @@ function App() {
   const [popupInfo, setPopupInfo] = useState('');
   const [listening, setListening] = useState(false);
   const [movingForward, setMovingForward] = useState(false);
+  const [plane , setPlane] = useState("mountain");
 
   useEffect(() => {
+  if(localStorage.getItem('plane') == "carpet"){
+
+    loader.load(carpet, (d) => {
+      const mountainEntity = mountainRef.current.object3D;
+      mountainEntity.add(d.scene);
+    });
+  }else{
     loader.load(mountain, (d) => {
       const mountainEntity = mountainRef.current.object3D;
       mountainEntity.add(d.scene);
     });
+  }
+
   }, [loader]);
 
   const images = [
@@ -69,6 +81,19 @@ function App() {
       console.log("move backword")
 
       resetTranscript();
+    }else if(transcript === "kamui") {
+      console.log("room")
+      if(localStorage.getItem('plane')==="carpet"){
+        localStorage.setItem('plane', 'mountain');
+
+      }else{
+
+        localStorage.setItem('plane', 'carpet');
+      }
+      window.location.reload();
+
+      resetTranscript();
+
     }
   }, [transcript, resetTranscript]);
  

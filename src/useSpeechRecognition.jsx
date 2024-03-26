@@ -8,11 +8,15 @@ const useSpeechRecognition = () => {
 
   useEffect(() => {
     recognition = new window.webkitSpeechRecognition(); // Create a new instance of SpeechRecognition
+    
+    // Set language to support English and Japanese
+    recognition.lang = 'en-US, ja-JP';
 
     // Event listeners
     recognition.onresult = (event) => {
       const currentTranscript = event.results[0][0].transcript;
       setTranscript(currentTranscript);
+      checkForKamuyi(currentTranscript);
     };
 
     recognition.onend = () => {
@@ -47,6 +51,16 @@ const useSpeechRecognition = () => {
 
   const resetTranscript = () => {
     setTranscript('');
+  };
+
+  const checkForKamuyi = (currentTranscript) => {
+    // Check for English words
+    if (currentTranscript.toLowerCase().includes('kamui')) {
+      console.log('kamui detected')
+      
+    }
+
+    
   };
 
   return { transcript, startListening, stopListening, resetTranscript };
