@@ -17,7 +17,7 @@ function App() {
   const [listening, setListening] = useState(false);
   const [movingForward, setMovingForward] = useState(false);
   const [plane , setPlane] = useState("mountain");
-
+  console.log("room activated")
   useEffect(() => {
   if(localStorage.getItem('plane') == "carpet"){
 
