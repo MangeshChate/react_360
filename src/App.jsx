@@ -81,7 +81,7 @@ function App() {
       console.log("move backword")
 
       resetTranscript();
-    }else if(transcript === "kamui") {
+    }else if(transcript === "room") {
       console.log("room")
       if(localStorage.getItem('plane')==="carpet"){
         localStorage.setItem('plane', 'mountain');
