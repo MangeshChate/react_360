@@ -3,9 +3,48 @@ import 'aframe';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import mountain from './models/mountain.glb';
 import carpet from './models/carpet.glb';
+import gallery from './models/gallery.glb';
+
 
 import sky from "./assets/sky.jpg";
+
 import useSpeechRecognition from './useSpeechRecognition'; 
+
+
+
+
+const images = [
+  { 
+    id: 1, 
+    src: 'https://miro.medium.com/v2/resize:fit:1200/0*j7sVnq-dE0XWdS12.jpeg', 
+    info: 'Information 1',
+    customPosition: {x:-24.9, y: 5, z: 20 }, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  },
+  { 
+    id: 2, 
+    src: 'https://static.wikia.nocookie.net/onepiece/images/8/87/One_Piece_Anime_Logo.png', 
+    info: 'Information 2',
+    customPosition: { x: -24.9, y: 5, z: 10 }, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  },
+  { 
+    id: 3, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    customPosition: { x: -24.9, y: 5, z: 0}, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  },
+  // Add more images as needed
+];
+
+
+
+
+
+
+
+
 
 function App() {
   const loader = new GLTFLoader();
@@ -13,6 +52,8 @@ function App() {
   const cameraRef = useRef(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0, z: 0 });
+  const [popupRotation, setPopupRotation] = useState({ x: 0, y: 0, z: 0 });
+
   const [popupInfo, setPopupInfo] = useState('');
   const [listening, setListening] = useState(false);
   const [movingForward, setMovingForward] = useState(false);
@@ -21,37 +62,39 @@ function App() {
   useEffect(() => {
   if(localStorage.getItem('plane') == "carpet"){
 
-    loader.load(carpet, (d) => {
+    loader.load(gallery, (d) => {
       const mountainEntity = mountainRef.current.object3D;
       mountainEntity.add(d.scene);
     });
+
+   
+    
+
   }else{
     loader.load(mountain, (d) => {
       const mountainEntity = mountainRef.current.object3D;
       mountainEntity.add(d.scene);
     });
+
+  
   }
 
   }, [loader]);
 
-  const images = [
-    { id: 1, src: 'https://miro.medium.com/v2/resize:fit:1200/0*j7sVnq-dE0XWdS12.jpeg', info: 'Information 1' },
-    { id: 2, src: 'https://static.wikia.nocookie.net/onepiece/images/8/87/One_Piece_Anime_Logo.png', info: 'Information 2' },
-    { id: 3, src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', info: 'Information 3' },
-    // Add more images as needed
-  ];
-
-  const handleImageClick = (position, info, id) => {
-    const imagePosition = images.find(image => image.id === id);
-    const popupX = imagePosition ? imagePosition.id * 5 - 7 : 0;
-    const popupY = 2;
-    const popupZ = -5;
-
+  const handleImageClick = (position, info , rotation) => {
+    const offset = 2; // Adjust as needed to position the pop-up in front of the image
+    const popupX = position.x;
+    const popupY = position.y;
+    const popupZ = position.z 
+    const rotateZ = rotation.z 
+  
     setShowPopup(true);
     setPopupPosition({ x: popupX, y: popupY, z: popupZ });
+    setPopupRotation({x:rotation.x , y:rotation.y , z:rotation.z})
     setPopupInfo(info);
   };
-
+  
+  
   const handleClosePopup = () => {
     setShowPopup(false);
   };
@@ -172,32 +215,35 @@ function App() {
           color="#FFFFFF"
           id="mountain"
           position="0 0 0"
-          scale="15 15 15"
+          scale="5 5 5"
           ref={mountainRef}
         />
-        <a-camera ref={cameraRef}></a-camera>
+        <a-camera ref={cameraRef} position="0 3 20"></a-camera>
         {images.map((image) => (
-          <a-image
-            key={image.id}
-            src={image.src}
-            width="3"
-            height="2"
-            position={`${image.id * 5 - 7} 2 -5`}
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleImageClick({ x: 0, y: 2, z: -5 }, image.info, image.id)}
-          />
-        ))}
-        {showPopup && (
+  <a-image
+    key={image.id}
+    src={image.src}
+    width="6"
+    height="5"
+    position={`${image.customPosition.x} ${image.customPosition.y} ${image.customPosition.z}`} // Use custom position values
+    rotation={`${image.customRotation.x} ${image.customRotation.y} ${image.customRotation.z}`} // Use custom rotation values
+    style={{ cursor: 'pointer' }}
+    onClick={() => handleImageClick(image.customPosition, image.info,image.customRotation ,image.id)}
+  />
+))}
+
+{showPopup && (
           <a-entity
             id="infoPanel"
             position={`${popupPosition.x} ${popupPosition.y} ${popupPosition.z}`}
-            geometry="primitive: plane; width: 4; height: 2; radius: 0.1"
+            rotation={`${popupRotation.x} ${popupRotation.y} ${popupRotation.z}`}
+            geometry="primitive: plane; width: 6; height: 5; radius: 0.1"
             material="color: #ffffff; shader: flat; opacity: 0.7; transparent: true"
           >
             {/* Close button */}
             <a-entity
               id="closeButton"
-              position="1.7 0.9 0.01"
+              position="2 2 0.3"
               geometry="primitive: plane; width: 0.5; height: 0.5"
               material="color: #ff0000; shader: flat"
               onClick={handleClosePopup}
@@ -223,6 +269,7 @@ function App() {
            
           </a-entity>
         )}
+
       </a-scene>
     </div>
   );
