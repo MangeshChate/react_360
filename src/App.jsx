@@ -18,30 +18,115 @@ const images = [
     id: 1, 
     src: 'https://miro.medium.com/v2/resize:fit:1200/0*j7sVnq-dE0XWdS12.jpeg', 
     info: 'Information 1',
-    customPosition: {x:-24.9, y: 5, z: 20 }, // Define custom position
-    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+    
   },
   { 
     id: 2, 
     src: 'https://static.wikia.nocookie.net/onepiece/images/8/87/One_Piece_Anime_Logo.png', 
     info: 'Information 2',
-    customPosition: { x: -24.9, y: 5, z: 10 }, // Define custom position
-    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+   
   },
   { 
     id: 3, 
     src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
     info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+  { 
+    id: 4, 
+    src: 'https://i0.wp.com/www.toonsmag.com/wp-content/uploads/2023/09/naruto-1249229.jpg', 
+    info: 'Information 3',
+    
+  },
+];
+
+const positions = [
+  {
+    customPosition: {x:-24.9, y: 5, z: 20 }, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  },
+  {
+    customPosition: { x: -24.9, y: 5, z: 10 }, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  },
+  {
     customPosition: { x: -24.9, y: 5, z: 0}, // Define custom position
     customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
   },
-  // Add more images as needed
-];
+  {
+    customPosition: { x: -24.9, y: 5, z: -10}, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+    
+  },
+  {
+    customPosition: { x: -24.9, y: 5, z: -20}, // Define custom position
+    customRotation: { x: 0, y: 90, z: 0 } // Define custom rotation
+  }
+  ,
+  {
+    customPosition: { x: -20.9, y: 5, z: -24.9}, // Define custom position
+    customRotation: { x: 0, y: 0, z: 0 } // Define custom rotation
+  },
+  {
+    customPosition: { x: -10.9, y: 5, z: -24.9}, // Define custom position
+    customRotation: { x: 0, y: 0, z: 0 } // Define custom rotation
+  },
+  {
+    customPosition: { x: -0.9, y: 5, z: -24.9}, // Define custom position
+    customRotation: { x: 0, y: 0, z: 0 } // Define custom rotation
+  },
+  {
+    
+      customPosition: { x: 10, y: 5, z: -24.9}, // Define custom position
+      customRotation: { x: 0, y: 0, z: 0 } // Define custom rotation
+    
+  },
+  {
+    
+    
+      customPosition: { x: 20, y: 5, z: -24.9}, // Define custom position
+      customRotation: { x: 0, y: 0, z: 0 } // Define custom rotation
+    
+  
+  }
 
-
-
-
-
+]
 
 
 
@@ -58,6 +143,13 @@ function App() {
   const [listening, setListening] = useState(false);
   const [movingForward, setMovingForward] = useState(false);
   const [plane , setPlane] = useState("mountain");
+
+
+  const combinedData = images.map((image, index) => ({
+    ...image,
+    ...positions[index]
+  }));
+
   console.log("room activated")
   useEffect(() => {
   if(localStorage.getItem('plane') == "carpet"){
@@ -80,6 +172,8 @@ function App() {
   }
 
   }, [loader]);
+
+
 
   const handleImageClick = (position, info , rotation) => {
     const offset = 2; // Adjust as needed to position the pop-up in front of the image
@@ -215,11 +309,11 @@ function App() {
           color="#FFFFFF"
           id="mountain"
           position="0 0 0"
-          scale="5 5 5"
+          scale={ localStorage.getItem('plane') === "carpet" ? "5 5 5" : "15 15 15"}
           ref={mountainRef}
         />
         <a-camera ref={cameraRef} position="0 3 20"></a-camera>
-        {images.map((image) => (
+        {combinedData.map((image) => (
   <a-image
     key={image.id}
     src={image.src}
